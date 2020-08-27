@@ -251,22 +251,22 @@ interface cToken {
     function underlying() external view returns (address);
 }
 
-contract StrategyCreamRENBTC {
+contract StrategycryCRV {
     using SafeERC20 for IERC20;
     using Address for address;
     using SafeMath for uint256;
 
-    //want = crRENBTC used to be YFI, can be whatever is "wanted"
+    //want = can be whatever is "wanted"
     address public constant want = address(
-        0xeb4c2781e4eba804ce9a9803c67d0893436bb27d
+        0xdf5e0e81dff6faf3a7e52ba697820c5e32d806a8
     );
 
     Creamtroller public constant creamtroller = Creamtroller(
         0x3d5BC3c8d13dcB8bF317092d84783c2697AE9258
     );
 
-    address public constant crRENBTC = address(
-        0x17107f40d70f4470d20cb3f138a052cae8ebd4be
+    address public constant cryCRV = address(
+        0x9baf8a5236d44ac410c0186fe39178d5aad0bb87
     );
     address public constant cream = address(
         0x2ba592F78dB6436527729929AAf6c908497cB200
@@ -296,7 +296,7 @@ contract StrategyCreamRENBTC {
     }
 
     function getName() external pure returns (string memory) {
-        return "StrategycrRENBTC";
+        return "StrategycryCRV";
     }
 
     function setStrategist(address _strategist) external {
@@ -318,11 +318,11 @@ contract StrategyCreamRENBTC {
         uint256 _want = IERC20(want).balanceOf(address(this));
         //Check if we have idle YFI
         if (_want > 0) {
-            //Approve crRENBTC pool to spend idle YFI
-            IERC20(want).safeApprove(crRENBTC, 0);
-            IERC20(want).safeApprove(crRENBTC, _want);
-            //Mint _want amount of crRENBTC interest bearing tokens.
-            cToken(crRENBTC).mint(_want);
+            //Approve cryCRV pool to spend idle YFI
+            IERC20(want).safeApprove(cryCRV, 0);
+            IERC20(want).safeApprove(cryCRV, _want);
+            //Mint _want amount of cryCRV interest bearing tokens.
+            cToken(cryCRV).mint(_want);
         }
     }
 
@@ -330,7 +330,7 @@ contract StrategyCreamRENBTC {
     function withdraw(IERC20 _asset) external returns (uint256 balance) {
         require(msg.sender == controller, "!controller");
         require(want != address(_asset), "want");
-        require(crRENBTC != address(_asset), "crRENBTC");
+        require(cryCRV != address(_asset), "cryCRV");
         require(cream != address(_asset), "cream");
         balance = _asset.balanceOf(address(this));
         _asset.safeTransfer(controller, balance);
@@ -426,20 +426,20 @@ contract StrategyCreamRENBTC {
     }
 
     function _withdrawC(uint256 amount) internal {
-        cToken(crRENBTC).redeem(amount);
+        cToken(cryCRV).redeem(amount);
     }
 
     function balanceCInToken() public view returns (uint256) {
         // Mantisa 1e18 to decimals
         uint256 b = balanceC();
         if (b > 0) {
-            b = b.mul(cToken(crRENBTC).exchangeRateStored()).div(1e18);
+            b = b.mul(cToken(cryCRV).exchangeRateStored()).div(1e18);
         }
         return b;
     }
 
     function balanceC() public view returns (uint256) {
-        return IERC20(crRENBTC).balanceOf(address(this));
+        return IERC20(cryCRV).balanceOf(address(this));
     }
 
     function balanceOf() public view returns (uint256) {
